@@ -1,0 +1,1 @@
+$(function(){var e=new Slider($("#banner_tabs"),{time:5e3,delay:400,event:"hover",auto:!0,mode:"fade",controller:$("#bannerCtrl"),activeControllerCls:"active"});$("#banner_tabs .flex-prev").click(function(){e.prev()}),$("#banner_tabs .flex-next").click(function(){e.next()})});
