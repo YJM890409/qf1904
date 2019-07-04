@@ -1,6 +1,6 @@
 <template>
-  <div class="OrderConfirm">
-          <div>
+<div class="orderConfirm">
+    <div>
   <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
       <symbol id="icon-add" viewBox="0 0 32 32">
@@ -54,31 +54,31 @@
             </ul>
           </div>
           <ul class="cart-item-list">
-            <li>
+            <li v-for="(cart, index) in cartList" v-bind:key="index">
               <div class="cart-tab-1">
                 <div class="cart-item-pic">
-                  <img src="../../static/1.jpg" alt="">
+                  <img v-bind:src="cart.img2" alt="">
                 </div>
                 <div class="cart-item-title">
-                  <div class="item-name">小米6</div>
+                  <div class="item-name">{{cart.title}}</div>
 
                 </div>
               </div>
               <div class="cart-tab-2">
-                <div class="item-price">2499</div>
+                <div class="item-price">{{cart.price}}</div>
               </div>
               <div class="cart-tab-3">
                 <div class="item-quantity">
                   <div class="select-self">
                     <div class="select-self-area">
-                      <span class="select-ipt">×1</span>
+                      <span class="select-ipt">×{{cart.num}}</span>
                     </div>
                   </div>
                   <div class="item-stock item-stock-no">数量</div>
                 </div>
               </div>
               <div class="cart-tab-4">
-                <div class="item-price-total">2499</div>
+                <div class="item-price-total">{{cart.num*cart.price}}</div>
               </div>
             </li>
           </ul>
@@ -91,7 +91,7 @@
           <ul>
             <li class="order-total-price">
               <span>总价</span>
-              <span>1999</span>
+              <span>{{cartGoodsPriceTotal}}</span>
             </li>
           </ul>
         </div>
@@ -101,34 +101,78 @@
         <div class="prev-btn-wrap">
           <!-- <button class="btn btn--m">Previous</button> -->
         </div>
-        <div class="next-btn-wrap">
+        <div class="next-btn-wrap"> 
           <!-- <button class="btn btn--m btn--red" onclick="location.href='orderSuccess.html'">创建订单</button> -->
-          <button class="btn btn--m btn--red" @click="creatOrder">创建订单</button>
+          <button class="btn btn--m btn--red" @click="createOrder">创建订单</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-  </div>
+</div>
 </template>
 <script>
-// 导入CSS
-import "@/assets/css/base.css"
-import "@/assets/css/checkout.css"
+import '@/assets/css/base.css'
+import '@/assets/css/checkout.css'
 
+import axios from 'axios'
 
-// 导入组件
 export default {
+  //模型已初始化
+  created() {
+    this.initData() //请求接口，数据同步模型
+  },
+  //声明模型
   data() {
     return {
-
-    };
+      cartList: [],
+      cartGoodsPriceTotal: 0//总价
+    }
   },
-  methods:{
-    checkout(){
-      this.$rounter.push({path:"/orderSuccess"}) 
+  //声明普通方法
+  methods: {
+    //创建订单
+    createOrder() {
+      
+      axios({
+        url:"http://118.31.9.103/api/order/create",
+        method:"post",
+        data:"userId=1"
+      }).then(res => {
+        if (res.data.meta.state == 201) {
+          alert('订单创建成功')
+          // this.$router.push({path:'/orderSuccess'}) 
+          this.$router.push({path:'/orderSuccess/'+res.data.data})  
+        } else {
+          alert(res.data.meta.msg)
+        }
+      }).catch(error=>{
+        console.log(error)
+      })
+    },
+    //初始化数据
+    initData(){
+      // let userId = localStorage.getItem('userId')
+      axios({
+        url:"http://118.31.9.103/api/cart/index",
+        method:"post",
+        data:"userId="+userId+"&isChoose=true"
+      }).then(res => {
+        //将数据保存到模型中
+        this.cartList = res.data.data 
+        //遍历统计总价
+        this.cartGoodsPriceTotal = 0 
+        for(let i=0; i<this.cartList.length; i++){
+            if (this.cartList[i].state == "1") {
+                this.cartGoodsPriceTotal += this.cartList[i].price *  this.cartList[i].num
+            }
+        }
+      }).catch(error=>{
+        console.log(error)
+      })
     }
   }
-  
 }
 </script>
+<style scoped>
+</style>

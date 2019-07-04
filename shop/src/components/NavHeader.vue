@@ -57,7 +57,7 @@
           <div class="navbar-menu-container">
             <!--<a href="/" class="navbar-link">我的账户</a>-->
             <span class="navbar-link"></span>
-            <a href="javascript:void(0)" class="navbar-link">登录</a>
+            <a href="javascript:void(0)" class="navbar-link" @click="form.isLoginShowFlag=true">登录</a>
             <a href="javascript:void(0)" class="navbar-link">退出</a>
             <div class="navbar-cart-container">
               <span class="navbar-cart-count"></span>
@@ -71,13 +71,64 @@
         </div>
       </div>
     </header>
+    <Modal v-bind:isMdShow="form.isLoginShowFlag" @close="closeModal">
+        <template v-slot:title>
+            <div class="md-title">登录</div>
+        </template>
+        <template v-slot:main>
+                  <div class="error-wrap">
+                      <span class="error error-show" v-show="form.error">用户名或者密码错误</span>
+                  </div>
+                  <ul>
+                      <li class="regi_form_input">
+                      <i class="icon IconPeople"></i>
+                      <input type="text" v-model="form.username" class="regi_login_input regi_login_input_left" placeholder="用户名" data-type="loginname">
+                      </li>
+                      <li class="regi_form_input noMargin">
+                      <i class="icon IconPwd"></i>
+                      <input type="password" v-model="form.password" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="密码" @keyup.enter="login">
+                      </li>
+                  </ul>
+        </template>
+        <template v-slot:btnGroup> 
+            <a href="javascript:;" class="btn-login" @click="login">登  录</a>
+        </template>
+    </Modal>
+
   </div> 
 </template>
 <script>
 // 导入CSS
 import "@/assets/css/header.css"
+import "@/assets/css/login.css"
 
-export default {}
+import Modal from "@/components/Modal"
+
+export default {
+  methods:{
+      login(){
+
+      },
+
+      closeModal(){
+          this.form.isLoginShowFlag = false
+      }
+  },
+  data(){
+    return{
+      form:{
+        error:'',
+        username:'',
+        password:'',
+        isLoginShowFlag:false
+      }
+    }
+  },
+
+  components: {
+    Modal
+  }
+}
 </script>
 <style scoped>
 </style>

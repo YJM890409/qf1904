@@ -92,42 +92,46 @@
               </ul>
             </div>
             <ul class="cart-item-list">
-              <li>
+              <li v-for="(cart,index) in cartList" v-bind:key="index">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn check">
+                    <a href="javascipt:;" 
+                      class="checkbox-btn item-check-btn"
+                      v-bind:class="{'check':cart.state=='1'}"
+                      @click="updateCart(cart.goods_id, 'state')"
+                    >
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok" />
                       </svg>
-                    </a>
+                    </a> 
                   </div>
                   <div class="cart-item-pic">
-                    <img src="../../static/1.jpg" />
+                    <img :src="cart.img2" />
                   </div>
                   <div class="cart-item-title">
-                    <div class="item-name">XX</div>
+                    <div class="item-name">{{cart.title}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">1000</div>
+                  <div class="item-price">{{cart.price}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <a class="input-sub">-</a>
-                        <span class="select-ipt">1</span>
-                        <a class="input-add">+</a>
+                        <a class="input-sub" @click="updateCart(cart.goods_id, '-')">-</a>
+                        <span class="select-ipt">{{cart.num}}</span>
+                        <a class="input-add" @click="updateCart(cart.goods_id, 'jia')">+</a>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">100</div>
+                  <div class="item-price-total">{{cart.num * cart.price}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn">
+                    <a href="javascript:;" class="item-edit-btn" @click="updateCart(cart.goods_id, 'del')">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del" />
                       </svg>
@@ -155,11 +159,11 @@
             <div class="cart-foot-r">
               <div class="item-total">
                 总价:
-                <span class="total-price">500</span>
+                <span class="total-price">{{cartGoodsPriceTotal}}</span>
               </div>
               <div class="btn-wrap">
                 <!-- <a class="btn btn--red" onclick="location.href='address.html'">结算</a> -->
-                <a class="btn btn--red" @click="checkout">结算</a>
+                <a class="btn btn--red" @click="goAddress">结算</a>
               </div>
             </div>
           </div>
@@ -171,23 +175,69 @@
 </template>
 <script>
 // 导入CSS
-import "@/assets/css/base.css";
-import "@/assets/css/product.css";
-import "@/assets/css/checkout.css";
+import "@/assets/css/base.css"
+import "@/assets/css/product.css"
+import "@/assets/css/checkout.css"
 
-import NavHeader from "@/components/NavHeader";
-import NavFooter from "@/components/NavFooter";
-import NavBread from "@/components/NavBread";
+import NavHeader from "@/components/NavHeader"
+import NavFooter from "@/components/NavFooter"
+import NavBread from "@/components/NavBread"
 // import Modal from "@/components/Modal"
+import axios from 'axios'
 
 // 导入组件
 export default {
-  data() {
-    return {};
+  created(){
+      this.initData()
   },
   methods:{
-    checkout(){
-      this.$rounter.push({path:"/address"})
+    // 收货地址页
+    goAddress(){
+        this.$router.push({path: '/address'})
+    },
+    // 更新购物车
+    updateCart(goodsId, state) {
+            axios({
+                url:"http://118.31.9.103/api/cart/edit",
+                method:"post",
+                data:`userId=1&goodsId=${goodsId}&state=${state}`
+            }).then(res => {
+                if (res.data.meta.state == 201) {
+                    alert('操作成功')
+                    //更新成功过后，重新发送请求，让页面数据变化
+                    this.initData()
+                } else {
+                    alert(res.data.meta.msg)
+                } 
+            }).catch(error=>{
+                console.log(error)
+              })
+    },
+    //数据初始化
+    initData() {
+            axios({
+                url:"http://118.31.9.103/api/cart/index",
+                method:"post",
+                data:"userId=1"
+            }).then(res => {
+                //将接口数据保存到模型中
+                this.cartList = res.data.data
+                //遍历统计
+                this.cartGoodsPriceTotal = 0 
+                for(let i=0; i<this.cartList.length; i++){
+                    if (this.cartList[i].state == "1") {
+                        this.cartGoodsPriceTotal += this.cartList[i].price *  this.cartList[i].num
+                    }
+                }
+            }).catch(error=>{
+                console.log(error)
+            })
+    }
+  },
+  data(){
+    return{
+      cartList:[],
+      cartGoodsPriceTotal: 0
     }
   },
 

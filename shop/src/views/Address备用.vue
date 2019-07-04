@@ -1,7 +1,6 @@
 <template>
-<div class="address">
-    
-<div class="checkout-page">
+  <div class="Address">
+      <div class="checkout-page">
   <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
       <symbol id="icon-add" viewBox="0 0 31 32">
@@ -12,7 +11,7 @@
         <title>ok</title>
         <path class="path1" d="M14.084 20.656l-7.845-9.282c-1.288-1.482-3.534-1.639-5.016-0.351s-1.639 3.534-0.351 5.016l10.697 12.306c1.451 1.669 4.057 1.623 5.448-0.096l18.168-22.456c1.235-1.527 0.999-3.765-0.528-5.001s-3.765-0.999-5.001 0.528l-15.573 19.337z"></path>
       </symbol>
-      <symbol id="icon-edit" viewBox="0 0 32 32"> 
+      <symbol id="icon-edit" viewBox="0 0 32 32">
         <title>edit</title>
         <path class="path1" d="M28.287 8.51l-4.805-4.806 0.831-0.831c0.472-0.472 1.086-0.777 1.564-0.777 0.248 0 0.452 0.082 0.622 0.253l3.143 3.144c0.539 0.54 0.133 1.529-0.524 2.186l-0.831 0.831zM26.805 9.992l-1.138 1.138-4.805-4.806 1.138-1.138 4.805 4.806zM24.186 12.612l-14.758 14.762-4.805-4.806 14.758-14.762 4.805 4.806zM7.379 28.288l-4.892 1.224 1.223-4.894 3.669 3.67zM31.123 4.011l-3.143-3.144c-0.567-0.567-1.294-0.867-2.103-0.867-1.036 0-2.174 0.52-3.045 1.391l-20.429 20.436c-0.135 0.134-0.23 0.302-0.276 0.487l-2.095 8.385c-0.089 0.355 0.017 0.736 0.276 0.995 0.198 0.198 0.461 0.307 0.741 0.307 0.085 0 0.171-0.010 0.254-0.031l8.381-2.096c0.185-0.047 0.354-0.142 0.487-0.276l20.43-20.436c1.409-1.41 2.042-3.632 0.524-5.15v0z"></path>
       </symbol>
@@ -56,12 +55,11 @@
       <div class="addr-list-wrap">
         <div class="addr-list">
           <ul>
-
-            <li v-for="(address, index) in addressList" v-bind:key="index" @click="updateDefaultAddress(address.id)">
+            <li>
               <dl>
-                <dt>{{address.nickname}}</dt>
-                <dd class="address">{{address.address}}</dd>
-                <dd class="tel">{{address.tel}}</dd> 
+                <dt>XXX</dt>
+                <dd class="address">朝阳公园</dd>
+                <dd class="tel">10000000000</dd>
               </dl>
               <div class="addr-opration addr-del">
                 <a href="javascript:;" class="addr-del-btn">
@@ -71,10 +69,8 @@
               <div class="addr-opration addr-set-default">
                 <a href="javascript:;" class="addr-set-default-btn"><i>设置</i></a>
               </div>
-              <!-- default = 1 是默认收获地址 -->
-              <div class="addr-opration addr-default" v-if="address.default == '1'">默认收货地址</div>
+              <div class="addr-opration addr-default">默认收货地址</div>
             </li>
-
             <li class="addr-new">
               <div class="add-new-inner">
                 <i class="icon-add">
@@ -99,68 +95,33 @@
 
       <div class="next-btn-wrap">
         <!-- <a class="btn btn--m btn--red" onclick="location.href='orderConfirm.html'">下一步</a> -->
-        <a class="btn btn--m btn--red" @click="goNext">下一步</a>
+        <a class="btn btn--m btn--red" @click="next">下一步</a>
       </div>
     </div>
   </div>
 </div>
-</div>
+  </div>
 </template>
 <script>
-import '@/assets/css/base.css'
-import '@/assets/css/checkout.css'
+// 导入CSS
+import "@/assets/css/base.css";
+import "@/assets/css/checkout.css";
 
-import axios from 'axios'
+import NavHeader from "@/components/NavHeader";
+import NavFooter from "@/components/NavFooter";
+import NavBread from "@/components/NavBread";
+// import Modal from "@/components/Modal"
 
+// 导入组件
 export default {
-  //模型已初始化
-  created() {
-    this.initData()
-  },
-  //声明模型
   data() {
-    return {
-      addressList: []
+    return {};
+  },
+  methods:{
+    checkout(){
+      this.$rounter.push({path:"/orderConfirm"}) 
     }
   },
-  //声明普通方法
-  methods:{
-    //去订单确定页
-    goNext() {
-      this.$router.push({path: '/orderConfirm'})
-    },
-    //初始化数据
-    initData() {
-        axios({
-            url:"http://118.31.9.103/api/address/index",
-            method:"post",
-            data:`userId=1`
-        }).then(res => {
-          //接口请求成功，将接口数据保存到模型中
-          this.addressList = res.data.data 
-        }).catch(error=>{
-            console.log(error)
-          })
-    },
-    updateDefaultAddress(addressId) {
-        axios({
-            url:"http://118.31.9.103/api/address/defaultAddress",
-            method:"post",
-            data:`userId=1&addressId=${addressId}`
-        }).then(res => {
-            if (res.data.meta.state == 201) {
-                alert('操作成功')
-                //更新成功后重新发送请求，让页面数据变化
-                this.initData()
-            } else {
-                alert(res.data.meta.msg)
-            }
-        }).catch(error=>{
-            console.log(error)
-          })
-    }
-  }
+  
 }
 </script>
-<style scoped>
-</style>
